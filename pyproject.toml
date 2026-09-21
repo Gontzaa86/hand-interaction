@@ -1,0 +1,27 @@
+[project]
+name = "hand-interaction"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Gontzaa86", email = "gonzalohernandezidigoras@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "mediapipe>=1.0.1",
+    "numpy>=2.5.3",
+    "opencv-python>=5.0.0.93",
+]
+
+[project.scripts]
+hand-interaction = "hand_interaction:main"
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.8",
+]
