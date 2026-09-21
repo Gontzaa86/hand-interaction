@@ -17,6 +17,7 @@ while True:
         print("No se pudo leer un frame.")
         break
 
+    # cv2.flip(frame, 1, frame) # Voltea horizontalmente, para evitar el efecto espejo del a imágen.
     cv2.imshow("Camera test", frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
