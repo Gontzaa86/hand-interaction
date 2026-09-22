@@ -141,3 +141,50 @@ class GestureRecognizer:
         dy = point_a.y - point_b.y
 
         return math.sqrt(dx * dx + dy * dy)
+
+    def _thumb_angle(self, landmarks):
+        """
+        Calcula el ángulo de la articulación IP del pulgar.
+        Útil para recalcular en próximas versiones, cuando el pulgar se encuentra estirado y cuando no.
+        """
+
+        mcp = landmarks[2]
+        ip = landmarks[3]
+        tip = landmarks[4]
+
+        return self._angle(mcp, ip, tip)
+
+    @staticmethod
+    def _angle(point_a, point_b, point_c):
+        """
+        Calcula el ángulo entre tres punto A-B-C en grados.
+        """
+
+        vector_ba = (
+            point_a.x - point_b.x,
+            point_a.y - point_b.y
+        )
+        vector_bc = (
+            point_c.x - point_b.x,
+            point_c.y - point_b.y
+        )
+
+        dot_product = (
+            vector_ba[0] * vector_bc[0]
+            + vector_ba[1] * vector_bc[1]
+        )
+
+        magnitude_ba = math.sqrt(
+            vector_ba[0] ** 2 + vector_ba[1] ** 2
+        )
+        magnitude_bc = math.sqrt(
+            vector_bc[0] ** 2 + vector_bc[1] ** 2
+        )
+
+        if magnitude_ba == 0 or magnitude_bc == 0:
+            return 0.0
+
+        cosine = dot_product / (magnitude_ba * magnitude_bc)
+        cosine = max(-1.0, min(1.0, cosine))
+
+        return math.degrees(math.acos(cosine))

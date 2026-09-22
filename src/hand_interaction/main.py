@@ -36,6 +36,9 @@ def main():
                 "Pinky": False
             }
 
+            # Ángulo inicial del pulgar
+            thumb_angle = 0.0
+
             # Si se detecta una mano
             if result.hand_landmarks:
                 hand_landmarks = result.hand_landmarks[0]
@@ -46,11 +49,26 @@ def main():
                 # Reconocer el gesto
                 gesture = gesture_recognizer.recognize(hand_landmarks)
 
+                # Calcular angulo del pulgar
+                thumb_angle = gesture_recognizer._thumb_angle(hand_landmarks)
+
             # Mostrar el gesto en pantalla
             cv2.putText(
                 frame,
                 f"Gesture: {gesture}",
                 (20, 40),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 255, 255),
+                2,
+                cv2.LINE_AA
+            )
+
+            # Mostrar el ángulo del pulgar en pantalla
+            cv2.putText(
+                frame,
+                f"Thumb Angle: {thumb_angle:.1f}º",
+                (20, 70),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
                 (255, 255, 255),
