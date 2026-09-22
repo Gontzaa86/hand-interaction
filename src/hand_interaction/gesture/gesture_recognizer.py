@@ -2,6 +2,8 @@
 
 import math
 
+THUMB_EXTENDED_ANGLE = 155 # 155º es el valor aproximado obtenido como delimitador tras las pruebas.
+
 class GestureRecognizer:
     def get_finger_states(self, hand_landmarks):
         """
@@ -121,14 +123,9 @@ class GestureRecognizer:
         El pulgar necesita un tratamiento diferente debido a su orientación
         """
 
-        wrist = landmarks[0]
-        thumb_tip = landmarks[4]
-        thumb_ip = landmarks[3]
+        angle = self._thumb_angle(landmarks)
 
-        wrist_to_tip = self._distance(wrist, thumb_tip)
-        wrist_to_ip = self._distance(wrist, thumb_ip)
-
-        return wrist_to_tip > wrist_to_ip
+        return angle >= THUMB_EXTENDED_ANGLE
 
     @staticmethod
     def _distance(point_a, point_b):
