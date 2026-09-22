@@ -3,15 +3,25 @@
 import math
 
 class GestureRecognizer:
-    def recognize(self, hand_landmarks):
+    def get_finger_states(self, hand_landmarks):
         """
-        Recibe los 21 landmarks de una mano y devuelve el gesto detectado.
+        Devuelve el estado de los cinco dedos.
+        True --> Dedo extendido
+        Flase --> Dedo recogido
+
+        Sumado a una interfaz, permitirá ver que esta viendo o entendiendo realmente el ordenador
+        permitiendo depurar la detección de dedos y gestos más fácilmente.
         """
 
         if not hand_landmarks:
-            return "Unknown"
+            return {
+                "Thumb": False,
+                "Index": False,
+                "Middle": False,
+                "Ring": False,
+                "Pinky": False
+            }
 
-        # Determinar qué dedos están extendidos
         """
         Nota nomenclatura del código:
             - tip --> Punta del dedo
@@ -20,60 +30,66 @@ class GestureRecognizer:
         No se usa, pero existe (para el punto restante):
             - dip --> "Distal Interphalangeal" | El nudillo más cercano a la uña
         """
-        thumb_extended = self._is_thumb_extended(hand_landmarks)
-        index_extended = self._is_finger_extended(
-            hand_landmarks,
-            tip_index=8, pip_index=6, mcp_index=5
-        )
-        middle_extended = self._is_finger_extended(
-            hand_landmarks,
-            tip_index=12, pip_index=10, mcp_index=9
-        )
-        ring_extended = self._is_finger_extended(
-            hand_landmarks,
-            tip_index=16, pip_index=14, mcp_index=13
-        )
-        pinky_extended = self._is_finger_extended(
-            hand_landmarks,
-            tip_index=20, pip_index=18, mcp_index=17
-        )
+        return {
+            "Thumb": self._is_thumb_extended(hand_landmarks),
+            "Index": self._is_finger_extended(
+                hand_landmarks,
+                tip_index=8, pip_index=6, mcp_index=5
+            ),
+            "Middle": self._is_finger_extended(
+                hand_landmarks,
+                tip_index=12, pip_index=10, mcp_index=9
+            ),
+            "Ring": self._is_finger_extended(
+                hand_landmarks,
+                tip_index=16, pip_index=14, mcp_index=13
+            ),
+            "Pinky": self._is_finger_extended(
+                hand_landmarks,
+                tip_index=20, pip_index=18, mcp_index=17
+            )
+        }
 
-        # Distintos Gestos
+    def recognize(self, hand_landmarks):
+        """
+        Recibe los 21 landmarks de una mano y devuelve el gesto detectado.
+        """
+
+        if not hand_landmarks:
+            return "Unknown"
+
+        fingers = self.get_finger_states(hand_landmarks)
+
+        thumb = fingers["Thumb"]
+        index = fingers["Index"]
+        middle = fingers["Middle"]
+        ring = fingers["Ring"]
+        pinky = fingers["Pinky"]
+
+        # ==== Definimos distintos Gestos ====
         # Fist
-        if not any([
-            thumb_extended,
-            index_extended,
-            middle_extended,
-            ring_extended,
-            pinky_extended
-        ]):
+        if not any(fingers.values()):
             return "Fist"
 
         # Open Hand
-        if all([
-            thumb_extended,
-            index_extended,
-            middle_extended,
-            ring_extended,
-            pinky_extended
-        ]):
+        if all(fingers.values()):
             return "Open Hand"
 
         # V Sign
         if (
-            index_extended
-            and middle_extended
-            and not ring_extended
-            and not pinky_extended
+            index
+            and middle
+            and not ring
+            and not pinky
         ):
             return "V Sign"
 
         # Raised Index
         if (
-            index_extended
-            and not middle_extended
-            and not ring_extended
-            and not pinky_extended
+            index
+            and not middle
+            and not ring
+            and not pinky
         ):
             return "Raised Index"
 
