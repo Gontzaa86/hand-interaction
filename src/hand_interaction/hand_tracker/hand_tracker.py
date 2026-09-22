@@ -143,6 +143,19 @@ class HandTracker:
                 -1
             )
 
+            # Dibujar los números 0-20 de los landmarks
+            for index, (x, y) in enumerate(points):
+                cv2.putText(
+                    frame,
+                    str(index),
+                    (x + 8, y - 8),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (255, 255, 255),
+                    1,
+                    cv2.LINE_AA
+                )
+
         return frame
 
     def close(self):
