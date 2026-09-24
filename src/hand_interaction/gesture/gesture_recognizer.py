@@ -123,9 +123,15 @@ class GestureRecognizer:
         El pulgar necesita un tratamiento diferente debido a su orientación
         """
 
-        angle = self._thumb_angle(landmarks)
+        # Calcular mediante la distancia entre la punta del pulgar (4), y el nudillo del meñique (17).
+        thumb_tip = landmarks[4]
+        thumb_ip = landmarks[3]
+        pinky_mcp = landmarks[17]
 
-        return angle >= THUMB_EXTENDED_ANGLE
+        tip_distance = self._distance(thumb_tip, pinky_mcp)
+        ip_distance = self._distance(thumb_ip, pinky_mcp)
+
+        return tip_distance > ip_distance
 
     @staticmethod
     def _distance(point_a, point_b):
