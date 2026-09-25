@@ -1,5 +1,7 @@
 import cv2
 
+from hand_interaction import config
+
 from hand_interaction.camera.camera import Camera
 
 from hand_interaction.hand_tracker.hand_tracker import HandTracker
@@ -59,7 +61,10 @@ def main():
                 # Mover el cursor si se está apuntando.
                 if gesture == "Raised Index":
                     index_tip = hand_landmarks[8]
-                    cursor_controller.move(index_tip.x, index_tip.y)
+
+                    # Mover únicamente si se encuentra dentro del recuadro.
+                    if cursor_controller.is_inside_active_area(index_tip.x, index_tip.y):
+                        cursor_controller.move(index_tip.x, index_tip.y)
 
             # Mostrar el gesto en pantalla
             cv2.putText(
@@ -75,6 +80,8 @@ def main():
 
             # Mostrar estado de los dedos
             frame = draw_finger_status(frame, finger_states)
+            # Mostrar área de interacción
+            frame = draw_active_area(frame)
 
             # Mostrar imágen
             cv2.imshow("Hand Interaction", frame)
@@ -118,6 +125,27 @@ def draw_finger_status(frame, finger_states):
         )
 
         y += 30
+
+    return frame
+
+def draw_active_area(frame):
+    """
+    Muestra el rectángulo de acción donde se podrá mover el índice para controlar el ratón.
+    """
+    height, width, _ = frame.shape
+
+    left = int(width * config.ACTIVE_AREA_LEFT)
+    right = int(width * config.ACTIVE_AREA_RIGHT)
+    top = int(height * config.ACTIVE_AREA_TOP)
+    bottom = int(height * config.ACTIVE_AREA_BOTTOM)
+
+    cv2.rectangle(
+        frame,
+        (left, top),
+        (right, bottom),
+        (255, 255, 0),
+        2
+    )
 
     return frame
 
