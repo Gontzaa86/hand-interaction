@@ -1,15 +1,20 @@
 import cv2
 
 from hand_interaction.camera.camera import Camera
+
 from hand_interaction.hand_tracker.hand_tracker import HandTracker
-from hand_interaction.gesture.gesture_recognizer import GestureRecognizer
+
+from hand_interaction.gesture.finger_states import FingerStateDetector
+from hand_interaction.gesture.gesture_classifier import GestureClassifier
 
 MODEL_PATH = "models/hand_landmarker.task"
 
 def main():
     camera = Camera()
     hand_tracker = HandTracker(MODEL_PATH)
-    gesture_recognizer = GestureRecognizer()
+
+    finger_detector = FingerStateDetector()
+    gesture_classifier = GestureClassifier()
 
     print("Cámara abierta correctamente. Pulsa 'Q' para cerrar.")
 
@@ -29,11 +34,11 @@ def main():
 
             # Estados de los dedos por defecto
             finger_states = {
-                "Thumb": False,
-                "Index": False,
-                "Middle": False,
-                "Ring": False,
-                "Pinky": False
+                "thumb": False,
+                "index": False,
+                "middle": False,
+                "ring": False,
+                "pinky": False
             }
 
             # Si se detecta una mano
@@ -41,10 +46,10 @@ def main():
                 hand_landmarks = result.hand_landmarks[0]
 
                 # Obtener estado de los dedos
-                finger_states = gesture_recognizer.get_finger_states(hand_landmarks)
+                finger_states = finger_detector.get_finger_states(hand_landmarks)
 
                 # Reconocer el gesto
-                gesture = gesture_recognizer.recognize(hand_landmarks)
+                gesture = gesture_classifier.classify(finger_states)
 
             # Mostrar el gesto en pantalla
             cv2.putText(
