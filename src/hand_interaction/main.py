@@ -24,8 +24,9 @@ def main():
 
     try:
         while True:
-            # Obtener frame de la cámara.
+            # Obtener frame de la cámara. Rotar horizontalmente para evitar efecto espejo.
             frame = camera.read()
+            frame = cv2.flip(frame, 1)
 
             # Detectar manos
             result = hand_tracker.detect(frame)
