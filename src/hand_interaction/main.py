@@ -7,6 +7,8 @@ from hand_interaction.hand_tracker.hand_tracker import HandTracker
 from hand_interaction.gesture.finger_states import FingerStateDetector
 from hand_interaction.gesture.gesture_classifier import GestureClassifier
 
+from hand_interaction.interaction.cursor_controller import CursorController
+
 MODEL_PATH = "models/hand_landmarker.task"
 
 def main():
@@ -15,6 +17,8 @@ def main():
 
     finger_detector = FingerStateDetector()
     gesture_classifier = GestureClassifier()
+
+    cursor_controller = CursorController()
 
     print("Cámara abierta correctamente. Pulsa 'Q' para cerrar.")
 
@@ -50,6 +54,11 @@ def main():
 
                 # Reconocer el gesto
                 gesture = gesture_classifier.classify(finger_states)
+
+                # Mover el cursor si se está apuntando.
+                if gesture == "Raised Index":
+                    index_tip = hand_landmarks[8]
+                    cursor_controller.move(index_tip.x, index_tip.y)
 
             # Mostrar el gesto en pantalla
             cv2.putText(
