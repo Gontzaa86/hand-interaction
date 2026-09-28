@@ -33,13 +33,24 @@ class GestureClassifier:
         ):
             return "V Sign"
         
-        # Raised Index
+        # Raised Index -- Control del cursor
         if (
-            index
+            not thumb
+            and index
             and not middle
             and not ring
             and not pinky
         ):
             return "Raised Index"
+
+        # L Sign
+        # Servirá para determinar pinch junto a otra función de detección de distancia.
+        if (
+            thumb and index
+            and not middle
+            and not ring
+            and not pinky
+        ):
+            return "L Sign"
         
         return "Unknown"

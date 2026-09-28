@@ -69,6 +69,11 @@ def main():
                         # Reiniciar suaziado cuando el dedo sale de la zona.
                         cursor_controller.reset_smoothing()
 
+                # Cambiar gesto de "L Sign" a "Pinch" si los dedos se encuentran juntos.
+                if gesture == "L Sign":
+                    if finger_detector.is_pinch(hand_landmarks):
+                        gesture = "Pinch"
+
             # Mostrar el gesto en pantalla
             cv2.putText(
                 frame,

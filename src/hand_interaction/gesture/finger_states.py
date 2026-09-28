@@ -97,3 +97,15 @@ class FingerStateDetector:
         dy = point_a.y - point_b.y
 
         return math.sqrt(dx * dx + dy * dy)
+
+    def is_pinch(self, landmarks):
+        """
+        Detecta si la puntua del índice y del pulgar se encuentran en contacto.
+        Si lo están, se determina como gesto pinch.
+        """
+        thumb_tip = landmarks[4]
+        index_tip = landmarks[8]
+
+        distance = self._distance(thumb_tip, index_tip)
+
+        return distance < 0.05
