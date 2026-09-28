@@ -65,6 +65,9 @@ def main():
                     # Mover únicamente si se encuentra dentro del recuadro.
                     if cursor_controller.is_inside_active_area(index_tip.x, index_tip.y):
                         cursor_controller.move(index_tip.x, index_tip.y)
+                    else:
+                        # Reiniciar suaziado cuando el dedo sale de la zona.
+                        cursor_controller.reset_smoothing()
 
             # Mostrar el gesto en pantalla
             cv2.putText(
