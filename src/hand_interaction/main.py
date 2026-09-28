@@ -10,6 +10,7 @@ from hand_interaction.gesture.finger_states import FingerStateDetector
 from hand_interaction.gesture.gesture_classifier import GestureClassifier
 
 from hand_interaction.interaction.cursor_controller import CursorController
+from hand_interaction.interaction.click_controller import ClickController
 
 MODEL_PATH = "models/hand_landmarker.task"
 
@@ -21,6 +22,7 @@ def main():
     gesture_classifier = GestureClassifier()
 
     cursor_controller = CursorController()
+    click_controller = ClickController()
 
     print("Cámara abierta correctamente. Pulsa 'Q' para cerrar.")
 
@@ -73,6 +75,8 @@ def main():
                 if gesture == "L Sign":
                     if finger_detector.is_pinch(hand_landmarks):
                         gesture = "Pinch"
+
+            click_controller.update(gesture) # Clicka si se cumplen las condiciones establecidas.
 
             # Mostrar el gesto en pantalla
             cv2.putText(
