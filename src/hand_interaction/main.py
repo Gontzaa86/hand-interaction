@@ -12,7 +12,7 @@ from hand_interaction.gesture.gesture_classifier import GestureClassifier
 from hand_interaction.interaction.cursor_controller import CursorController
 from hand_interaction.interaction.click_controller import ClickController
 
-MODEL_PATH = "models/hand_landmarker.task"
+MODEL_PATH = "models/gesture_recognizer.task"
 
 def main():
     camera = Camera()
@@ -34,6 +34,13 @@ def main():
 
             # Detectar manos
             result = hand_tracker.detect(frame)
+
+            # Verificación de carga de gestos con nueva lógica de Gesture Recognizer de MediaPipe
+            # Mostrar unicamente; Score y category_name
+            if result.gestures:
+                gesture = result.gestures[0][0]
+
+                print(f"Gesto: {gesture.category_name} | Confianza: {gesture.score:.3f}")
 
             # Dibujar landmarks
             frame = hand_tracker.draw_landmarks(frame, result)

@@ -19,7 +19,7 @@ class HandTracker:
     def __init__(self, model_path: str, num_hands: int = 1):
         base_options = python.BaseOptions(model_asset_path=model_path)
 
-        options = vision.HandLandmarkerOptions(
+        options = vision.GestureRecognizerOptions(
         base_options=base_options,
         num_hands=1,
         min_hand_detection_confidence=0.5,
@@ -27,7 +27,7 @@ class HandTracker:
         min_tracking_confidence=0.5
         )
 
-        self.detector = vision.HandLandmarker.create_from_options(options)
+        self.detector = vision.GestureRecognizer.create_from_options(options)
 
     def detect(self, frame):
         # OpenCV utiliza BGR y MediaPipe espera RGB
@@ -39,8 +39,8 @@ class HandTracker:
             data=rgb_frame
         )
 
-        # Detectar las manos
-        result = self.detector.detect(mp_image)
+        # Detectar las manos y gestos
+        result = self.detector.recognize(mp_image)
 
         return result
 
