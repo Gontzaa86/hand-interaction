@@ -6,8 +6,7 @@ from hand_interaction.camera.camera import Camera
 
 from hand_interaction.hand_tracker.hand_tracker import HandTracker
 
-from hand_interaction.gesture.finger_states import FingerStateDetector
-from hand_interaction.gesture.gesture_classifier import GestureClassifier
+from hand_interaction.gesture.gesture_recognizer import GestureRecognizer
 
 from hand_interaction.interaction.cursor_controller import CursorController
 from hand_interaction.interaction.click_controller import ClickController
@@ -17,9 +16,7 @@ MODEL_PATH = "models/gesture_recognizer.task"
 def main():
     camera = Camera()
     hand_tracker = HandTracker(MODEL_PATH)
-
-    finger_detector = FingerStateDetector()
-    gesture_classifier = GestureClassifier()
+    gesture_recognizer = GestureRecognizer()
 
     cursor_controller = CursorController()
     click_controller = ClickController()
@@ -35,40 +32,23 @@ def main():
             # Detectar manos
             result = hand_tracker.detect(frame)
 
-            # Verificación de carga de gestos con nueva lógica de Gesture Recognizer de MediaPipe
-            # Mostrar unicamente; Score y category_name
-            if result.gestures:
-                gesture = result.gestures[0][0]
+            # Interpretar el resultado de MediaPipe y detectar Pinch.
+            gesture = gesture_recognizer.get_gesture(result)
+            print(f"Gesto: {gesture}")
 
-                print(f"Gesto: {gesture.category_name} | Confianza: {gesture.score:.3f}")
+            # Si no hay ninguna mano, mostramos "No Hand"
+            if not result.hand_landmarks:
+                gesture = "No Hand"
 
             # Dibujar landmarks
             frame = hand_tracker.draw_landmarks(frame, result)
-
-            # Establecer gesto por defecto
-            gesture = "No Hand"
-
-            # Estados de los dedos por defecto
-            finger_states = {
-                "thumb": False,
-                "index": False,
-                "middle": False,
-                "ring": False,
-                "pinky": False
-            }
 
             # Si se detecta una mano
             if result.hand_landmarks:
                 hand_landmarks = result.hand_landmarks[0]
 
-                # Obtener estado de los dedos
-                finger_states = finger_detector.get_finger_states(hand_landmarks)
-
-                # Reconocer el gesto
-                gesture = gesture_classifier.classify(finger_states)
-
                 # Mover el cursor si se está apuntando.
-                if gesture == "Raised Index":
+                if gesture == "Pointing_Up":
                     index_tip = hand_landmarks[8]
 
                     # Mover únicamente si se encuentra dentro del recuadro.
@@ -78,12 +58,8 @@ def main():
                         # Reiniciar suaziado cuando el dedo sale de la zona.
                         cursor_controller.reset_smoothing()
 
-                # Cambiar gesto de "L Sign" a "Pinch" si los dedos se encuentran juntos.
-                if gesture == "L Sign":
-                    if finger_detector.is_pinch(hand_landmarks):
-                        gesture = "Pinch"
-
-            click_controller.update(gesture) # Clicka si se cumplen las condiciones establecidas.
+            # Actualizar el controlador del click.
+            click_controller.update(gesture)
 
             # Mostrar el gesto en pantalla
             cv2.putText(
@@ -97,8 +73,6 @@ def main():
                 cv2.LINE_AA
             )
 
-            # Mostrar estado de los dedos
-            frame = draw_finger_status(frame, finger_states)
             # Mostrar área de interacción
             frame = draw_active_area(frame)
 
@@ -113,39 +87,6 @@ def main():
         camera.release()
         hand_tracker.close()
         cv2.destroyAllWindows()
-
-def draw_finger_status(frame, finger_states):
-    """
-    Muestra el estado de los cinco dedos en la esquina superior derecha
-    """
-
-    height, width, _ = frame.shape
-
-    x = width - 180
-    y = 40
-
-    for finger, extended in finger_states.items():
-        if extended:
-            color = (0, 255, 0)
-            state = "EXTENDED"
-        else:
-            color = (0, 0, 255)
-            state = "FOLDED"
-
-        cv2.putText(
-            frame,
-            f"{finger}: {state}",
-            (x, y),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.55,
-            color,
-            2,
-            cv2.LINE_AA
-        )
-
-        y += 30
-
-    return frame
 
 def draw_active_area(frame):
     """
